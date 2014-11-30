@@ -3,3 +3,4 @@ roles
 *.tfplan
 *.tfstate
 *.backup
+hosts

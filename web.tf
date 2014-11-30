@@ -9,6 +9,9 @@ resource "digitalocean_droplet" "web" {
     key_file = "${var.pvt_key}"
     timeout = "2m"
   }
+  provisioner "local-exec" {
+    command = "echo ${digitalocean_droplet.web.ipv4_address} >> hosts"
+  }
 }
 
 output "address_web" {
