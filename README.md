@@ -21,8 +21,90 @@ brew install ansible
 
 ```
 ansible-galaxy install geerlingguy.drupal
+
 ```
 
+저 롤에 문제가 있어서 진행하다가 오류로 중단됩니다. 일단 아래 quick fix 적용하시면 진행됩니다.
+
+```
+geerlingguy.drush/tasks/main.yml 7줄 삭제 혹은 주석 처리
+// update={{ drush_keep_updated }} 
+
+geerlingguy.php/defaults/main.yml 맨 마지막에 아래 추가
+php_webserver_daemon: "apache2" 
+```
+
+## Configure terraform
+
+```
+
+// 필요한 환경 변수 등록.
+// 디지털오션에 가서 토큰을 발급받아야 함.
+export DO_PAT={YOUR_PERSONAL_ACCESS_TOKEN}
+
+// 사용할 공개키 핑커프린트
+export SSH_FINGERPRINT=$(ssh-keygen -lf ~/.ssh/id_rsa.pub | awk '{print $2}')
+
+source .bash_profile // or .zshrc
+
+// 계획 세우기
+terraform plan \
+  -var "do_token=${DO_PAT}" \
+  -var "pub_key=$HOME/.ssh/id_rsa.pub" \
+  -var "pvt_key=$HOME/.ssh/id_rsa" \
+  -var "ssh_fingerprint=$SSH_FINGERPRINT" \
+  -var "domain={YOUR_DOMAIN}"
+
+// 계획 실행하기
+terraform apply \
+  -var "do_token=${DO_PAT}" \
+  -var "pub_key=$HOME/.ssh/id_rsa.pub" \
+  -var "pvt_key=$HOME/.ssh/id_rsa" \
+  -var "ssh_fingerprint=$SSH_FINGERPRINT" \
+  -var "domain={YOUR_DOMAIN}"
+
+```
+
+## Provisioning via ansible
+
+계획 실행 후 별 문제가 없으면 생성된 가상 서버의 아이피가 녹색으로 표시되고 ansible이 사용할 hosts 파일이 생깁니다.
+그러면 인프라가 설정이 된거니까 이제 ansible을 사용해서 가상 서버에 필요한 패키지를 설치하고 설정합니다.
+
+```
+settings.yml
+# Your drupal site's domain name (e.g. 'example.com').
+drupal_domain: "drupaltest.dev"
+```
+
+위 파일에서 drupaltest.dev을 테라폼 도메인으로 수정해야 드루팔에 도메인으로 접근할 수 있습니다.
+
+
+```
+ansible-playbook -i hosts playbook.yml
+```
+
+설정 값을 다 수정하고 나면 위 명령어로 서버 프로비저닝 시작. 문제 없이 완료되고 난 후 해당 도메인으로 접근하면 드루팔이 똿!
+
+```
+참고:
+
+# 에러 중단 후 중간부터 다시 시작
+ansible-playbook -i hosts playbook.yml --start-at="Clone Drush from GitHub."
+```
+
+```
+# 삭제하기
+
+terraform plan -destroy -out=terraform.tfplan \
+  -var "do_token=${DO_PAT}" \
+  -var "pub_key=$HOME/.ssh/id_rsa.pub" \
+  -var "pvt_key=$HOME/.ssh/id_rsa" \
+  -var "ssh_fingerprint=$SSH_FINGERPRINT" \
+  -var "domain={YOUR_DOMAIN}"
+
+terraform apply terraform.tfplan
+
+```
 
 ### 참고 문서
 https://www.digitalocean.com/community/tutorials/how-to-use-terraform-with-digitalocean
