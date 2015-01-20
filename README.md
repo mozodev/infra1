@@ -17,7 +17,7 @@ brew install ansible
 ```
 
 ## drupal role
-[geerlingguy.drupal](https://galaxy.ansible.com/list#/roles/932) 롤을 사용해서 드루팔 서비스 환경을 설정합니다. git, apache, mysql, php, php-mysql, composer, drush 등을 설치하고 설정합니다. 코드는 [깃헙 레포지토리](https://github.com/geerlingguy/ansible-role-drupal)에 있습니다. 제가 쓴 것도 있는데 옛날에 잘 됐는데 귀찮아서 방치하고 있습니다.
+[geerlingguy.drupal](https://galaxy.ansible.com/list#/roles/932) 롤을 사용해서 드루팔 서비스 환경을 설정합니다. git, apache, mysql, php, php-mysql, composer, drush 등을 설치하고 설정합니다. 코드는 [깃헙 레포지토리](https://github.com/geerlingguy/ansible-role-drupal)에 있습니다. [제가 쓴 것](https://github.com/mozodev/vagrant-ansible-drupal)도 있는데 다듬기 귀찮아서 방치하고 있습니다.
 
 ```
 ansible-galaxy install geerlingguy.drupal
