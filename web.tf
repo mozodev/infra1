@@ -1,6 +1,6 @@
 resource "digitalocean_droplet" "web" {
   image = "ubuntu-14-04-x64"
-  name = "${var.domain}"
+  name = "drupal"
   region = "sgp1"
   size = "512mb"
   backups = "false"
@@ -11,7 +11,7 @@ resource "digitalocean_droplet" "web" {
     timeout = "2m"
   }
   provisioner "local-exec" {
-    command = "echo \"[default]\n${digitalocean_droplet.web.ipv4_address} >> hosts\""
+    command = "echo '[default]\n'${digitalocean_droplet.web.ipv4_address} > hosts && ansible-playbook playbook.yml"
   }
 }
 
