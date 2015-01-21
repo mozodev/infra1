@@ -35,4 +35,4 @@ drupal_keep_updated: no
 drupal_install_profile: standard
 
 # quick fix for geerlingguy.php/defaults/main.yml 
-php_webserver_daemon: "apache2" 
+php_webserver_daemon: apache2

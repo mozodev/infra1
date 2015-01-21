@@ -4,3 +4,4 @@ roles
 *.tfstate
 *.backup
 hosts
+settings.yml
