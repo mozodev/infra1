@@ -28,11 +28,38 @@ ansible-galaxy install geerlingguy.drupal
 
 ```
 geerlingguy.drush/tasks/main.yml 7줄 삭제 혹은 주석 처리
-// update={{ drush_keep_updated }} 
+// update={{ drush_keep_updated }} git clone 안됨.
 
-geerlingguy.php/defaults/main.yml 맨 마지막에 아래 추가
-php_webserver_daemon: "apache2" 
 ```
+
+## Provisioning via ansible
+
+테라폼으로 가상 서버가 만들어지고 나면 생성된 가상 서버의 아이피로 ansible이 사용할 hosts 파일을 만들고 바로 ansible이 가상 서버에 필요한 패키지를 설치하고 설정합니다.
+
+우선 ```default.settings.yml```을 복사해서 ```settings.yml```을 만들고 아래처럼 도메인 등 원하는 설정으로 수정을 해야 합니다. 실행할 ansible playbook은 이 설정 파일로 서버를 설치하고 설정합니다.
+
+```
+settings.yml
+# Your drupal site's domain name (e.g. 'example.com').
+drupal_domain: "drupaltest.dev"
+```
+
+위 파일에서 drupaltest.dev을 테라폼 도메인으로 수정해야 드루팔에 도메인으로 접근할 수 있습니다. 혹시 바꾸지 않고 실행해버리면 아파치 가상호스트가 저 로컬 도메인을 듣고 있으므로 암만 때려봐야 접근이 안됩니다. 이럴때는 ssh로 붙어서 직접 수정해야 합니다.
+
+
+```
+ansible-playbook -i hosts playbook.yml
+```
+
+설정 값을 다 수정하고 나면 위 명령어로 서버 프로비저닝 시작. 문제 없이 완료되고 난 후 해당 도메인으로 접근하면 드루팔이 똿!
+
+```
+참고:
+
+# 에러 중단 후 중간부터 다시 시작
+ansible-playbook -i hosts playbook.yml --start-at="Clone Drush from GitHub."
+```
+
 
 ## Configure terraform
 
@@ -63,36 +90,6 @@ terraform apply \
   -var "ssh_fingerprint=$SSH_FINGERPRINT" \
   -var "domain={YOUR_DOMAIN}"
 
-```
-
-## Provisioning via ansible
-
-계획 실행 후 별 문제가 없으면 생성된 가상 서버의 아이피가 녹색으로 표시되고 ansible이 사용할 hosts 파일이 생깁니다.
-그러면 인프라가 설정이 된거니까 이제 ansible을 사용해서 가상 서버에 필요한 패키지를 설치하고 설정합니다.
-
-```
-settings.yml
-# Your drupal site's domain name (e.g. 'example.com').
-drupal_domain: "drupaltest.dev"
-```
-
-위 파일에서 drupaltest.dev을 테라폼 도메인으로 수정해야 드루팔에 도메인으로 접근할 수 있습니다.
-
-
-```
-ansible-playbook -i hosts playbook.yml
-```
-
-설정 값을 다 수정하고 나면 위 명령어로 서버 프로비저닝 시작. 문제 없이 완료되고 난 후 해당 도메인으로 접근하면 드루팔이 똿!
-
-```
-참고:
-
-# 에러 중단 후 중간부터 다시 시작
-ansible-playbook -i hosts playbook.yml --start-at="Clone Drush from GitHub."
-```
-
-```
 # 삭제하기
 
 terraform plan -destroy -out=terraform.tfplan \
